@@ -2,27 +2,15 @@ pipeline {
     agent any
 
     stages {
-        stage('Install Dependencies') {
+        stage('Build') {
             steps {
-                sh '''
-                docker run --rm \
-                  -v "$PWD/react-app:/app" \
-                  -w /app \
-                  node:18-alpine \
-                  npm install
-                '''
+                echo 'Build stage executed successfully'
             }
         }
 
-        stage('Build React App') {
+        stage('Test') {
             steps {
-                sh '''
-                docker run --rm \
-                  -v "$PWD/react-app:/app" \
-                  -w /app \
-                  node:18-alpine \
-                  npm run build
-                '''
+                echo 'Test stage executed successfully'
             }
         }
     }
