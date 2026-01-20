@@ -2,9 +2,16 @@ pipeline {
     agent any
 
     stages {
-        stage('Hello') {
+        stage('Build') {
             steps {
-                echo 'Hello from Jenkins Pipeline 🚀'
+                echo 'Build success 🚀'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Running test...'
+                sh 'echo test passed ✅'
             }
         }
     }
