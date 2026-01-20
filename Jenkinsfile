@@ -1,25 +1,28 @@
 pipeline {
-    agent {
-        docker {
-            image 'node:18-alpine'
-            args '-u root:root'
-        }
-    }
+    agent any
 
     stages {
         stage('Install Dependencies') {
             steps {
-                dir('react-app') {
-                    sh 'npm install'
-                }
+                sh '''
+                docker run --rm \
+                  -v "$PWD/react-app:/app" \
+                  -w /app \
+                  node:18-alpine \
+                  npm install
+                '''
             }
         }
 
         stage('Build React App') {
             steps {
-                dir('react-app') {
-                    sh 'npm run build'
-                }
+                sh '''
+                docker run --rm \
+                  -v "$PWD/react-app:/app" \
+                  -w /app \
+                  node:18-alpine \
+                  npm run build
+                '''
             }
         }
     }
