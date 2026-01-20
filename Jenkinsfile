@@ -2,16 +2,19 @@ pipeline {
     agent any
 
     stages {
-        stage('Build') {
+        stage('Install Dependencies') {
             steps {
-                echo 'Build success 🚀'
+                dir('react-app') {
+                    sh 'npm install'
+                }
             }
         }
 
-        stage('Test') {
+        stage('Build React App') {
             steps {
-                echo 'Running test...'
-                sh 'echo test passed ✅'
+                dir('react-app') {
+                    sh 'npm run build'
+                }
             }
         }
     }
