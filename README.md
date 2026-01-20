@@ -1,2 +1,4 @@
 # a428-cicd-labs
-Repository untuk Kelas Belajar Implementasi CI/CD
+
+CI/CD Submission using Jenkins Pipeline with React App.
+
