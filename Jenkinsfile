@@ -5,8 +5,12 @@ pipeline {
         stage('Build') {
             steps {
                 sh '''
-                  echo "=== BUILD STAGE ===" > log.txt
-                  echo "Build executed successfully" >> log.txt
+                  docker run --rm \
+                    -v "$PWD/react-app:/app" \
+                    -w /app \
+                    node:18-alpine \
+                    sh -c "npm install && npm run build" \
+                    | tee build.log
                 '''
             }
         }
@@ -14,8 +18,20 @@ pipeline {
         stage('Test') {
             steps {
                 sh '''
-                  echo "=== TEST STAGE ===" >> log.txt
-                  echo "Test executed successfully" >> log.txt
+                  docker run --rm \
+                    -v "$PWD/react-app:/app" \
+                    -w /app \
+                    node:18-alpine \
+                    sh -c "npm test -- --watchAll=false" \
+                    | tee test.log
+                '''
+            }
+        }
+
+        stage('Collect Logs') {
+            steps {
+                sh '''
+                  cat build.log test.log > log.txt
                 '''
             }
         }
