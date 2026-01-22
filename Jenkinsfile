@@ -4,42 +4,31 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh '''
-                  docker run --rm \
-                    -v "$PWD/react-app:/app" \
-                    -w /app \
-                    node:18-alpine \
-                    sh -c "npm install && npm run build" \
-                    | tee build.log
-                '''
+                dir('react-app') {
+                    sh '''
+                    echo "=== BUILD STAGE ===" | tee -a log.txt
+                    npm install 2>&1 | tee -a log.txt
+                    npm run build 2>&1 | tee -a log.txt
+                    '''
+                }
             }
         }
 
         stage('Test') {
             steps {
-                sh '''
-                  docker run --rm \
-                    -v "$PWD/react-app:/app" \
-                    -w /app \
-                    node:18-alpine \
-                    sh -c "npm test -- --watchAll=false" \
-                    | tee test.log
-                '''
-            }
-        }
-
-        stage('Collect Logs') {
-            steps {
-                sh '''
-                  cat build.log test.log > log.txt
-                '''
+                dir('react-app') {
+                    sh '''
+                    echo "=== TEST STAGE ===" | tee -a log.txt
+                    npm test -- --watchAll=false 2>&1 | tee -a log.txt || true
+                    '''
+                }
             }
         }
     }
 
     post {
         always {
-            archiveArtifacts artifacts: 'log.txt'
+            archiveArtifacts artifacts: 'log.txt', fingerprint: true
         }
     }
 }
