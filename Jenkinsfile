@@ -1,35 +1,37 @@
 pipeline {
-    agent any
+  agent {
+    docker {
+      image 'node:18'
+      args '-u root'
+    }
+  }
 
-    stages {
-        stage('Build') {
-            steps {
-                dir('react-app') {
-                    sh '''
-                    echo "=== BUILD STAGE ===" | tee log.txt
-                    docker run --rm -v "$PWD":/app -w /app node:18 \
-                      sh -c "npm install && npm run build" 2>&1 | tee -a log.txt
-                    '''
-                }
-            }
-        }
-
-        stage('Test') {
-            steps {
-                dir('react-app') {
-                    sh '''
-                    echo "=== TEST STAGE ===" | tee -a log.txt
-                    docker run --rm -v "$PWD":/app -w /app node:18 \
-                      sh -c "npm test -- --watch=false" 2>&1 | tee -a log.txt
-                    '''
-                }
-            }
-        }
+  stages {
+    stage('Build') {
+      steps {
+        sh '''
+          echo "=== BUILD STAGE ===" | tee log.txt
+          cd react-app
+          npm install 2>&1 | tee -a ../log.txt
+          npm run build 2>&1 | tee -a ../log.txt
+        '''
+      }
     }
 
-    post {
-        always {
-            archiveArtifacts artifacts: 'react-app/log.txt'
-        }
+    stage('Test') {
+      steps {
+        sh '''
+          echo "=== TEST STAGE ===" | tee -a log.txt
+          cd react-app
+          npm test -- --watch=false 2>&1 | tee -a ../log.txt
+        '''
+      }
     }
+  }
+
+  post {
+    always {
+      archiveArtifacts artifacts: 'log.txt'
+    }
+  }
 }
