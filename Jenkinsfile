@@ -6,9 +6,9 @@ pipeline {
             steps {
                 dir('react-app') {
                     sh '''
-                        echo "=== BUILD STAGE ===" | tee ../log.txt
-                        npm install 2>&1 | tee -a ../log.txt
-                        npm run build 2>&1 | tee -a ../log.txt
+                    echo "=== BUILD STAGE ===" | tee log.txt
+                    docker run --rm -v "$PWD":/app -w /app node:18 \
+                      sh -c "npm install && npm run build" 2>&1 | tee -a log.txt
                     '''
                 }
             }
@@ -18,8 +18,9 @@ pipeline {
             steps {
                 dir('react-app') {
                     sh '''
-                        echo "=== TEST STAGE ===" | tee -a ../log.txt
-                        npm test -- --watch=false 2>&1 | tee -a ../log.txt
+                    echo "=== TEST STAGE ===" | tee -a log.txt
+                    docker run --rm -v "$PWD":/app -w /app node:18 \
+                      sh -c "npm test -- --watch=false" 2>&1 | tee -a log.txt
                     '''
                 }
             }
@@ -28,7 +29,7 @@ pipeline {
 
     post {
         always {
-            archiveArtifacts artifacts: 'log.txt', fingerprint: true
+            archiveArtifacts artifacts: 'react-app/log.txt'
         }
     }
 }
