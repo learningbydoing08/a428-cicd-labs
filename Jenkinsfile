@@ -22,5 +22,21 @@ pipeline {
         }
       }
     }
+
+    stage('Manual Approval') {
+      steps {
+        input message: 'Lanjutkan ke tahap Deploy?'
+      }
+    }
+
+    stage('Deploy') {
+      steps {
+        dir('react-app') {
+          sh 'npm install -g serve'
+          sh 'serve -s build &'
+          sh 'sleep 60'
+        }
+      }
+    }
   }
 }
